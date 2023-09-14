@@ -504,6 +504,10 @@ static NSString *const kPresentationSize         = @"presentationSize";
         [self bufferingSomeSecond];
     }
 }
+
+- (void)onVideoSizeChanged:(AliPlayer*)player width:(int)width height:(int)height rotation:(int)rotation {
+    self.presentationSize = self.playerItem.presentationSize;
+}
 #pragma mark - getter
 
 - (ZFPlayerView *)view {
@@ -575,15 +579,19 @@ static NSString *const kPresentationSize         = @"presentationSize";
     self.view.scalingMode = scalingMode;
     switch (scalingMode) {
         case ZFPlayerScalingModeNone:
+            self.player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFIT;
             presentView.videoGravity = AVLayerVideoGravityResizeAspect;
             break;
         case ZFPlayerScalingModeAspectFit:
+            self.player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFIT;
             presentView.videoGravity = AVLayerVideoGravityResizeAspect;
             break;
         case ZFPlayerScalingModeAspectFill:
+            self.player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFILL;
             presentView.videoGravity = AVLayerVideoGravityResizeAspectFill;
             break;
         case ZFPlayerScalingModeFill:
+            self.player.scalingMode = AVP_SCALINGMODE_SCALETOFILL;
             presentView.videoGravity = AVLayerVideoGravityResize;
             break;
         default:
