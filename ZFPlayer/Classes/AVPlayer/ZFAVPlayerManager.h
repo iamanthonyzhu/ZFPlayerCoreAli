@@ -24,6 +24,7 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
+#import <AliyunPlayer/AliPlayer.h>
 #if __has_include(<ZFPlayer/ZFPlayerMediaPlayback.h>)
 #import <ZFPlayer/ZFPlayerMediaPlayback.h>
 #else
@@ -34,7 +35,7 @@
 
 @property (nonatomic, strong, readonly) AVURLAsset *asset;
 @property (nonatomic, strong, readonly) AVPlayerItem *playerItem;
-@property (nonatomic, strong, readonly) AVPlayer *player;
+@property (nonatomic, strong, readonly) AliPlayer *player;
 @property (nonatomic, assign) NSTimeInterval timeRefreshInterval;
 /// 视频请求头
 @property (nonatomic, strong) NSDictionary *requestHeader;

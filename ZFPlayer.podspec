@@ -26,6 +26,7 @@ Pod::Spec.new do |s|
         core.source_files = 'ZFPlayer/Classes/Core/**/*'
         core.public_header_files = 'ZFPlayer/Classes/Core/**/*.h'
         core.frameworks = 'UIKit', 'MediaPlayer', 'AVFoundation'
+        core.dependency 'AliPlayerSDK_iOS' , '6.5.0'
     end
     
     s.subspec 'ControlView' do |controlView|
