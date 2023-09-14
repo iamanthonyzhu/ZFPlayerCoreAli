@@ -177,7 +177,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
 //    [self.player replaceCurrentItemWithPlayerItem:nil];
     self.presentationSize = CGSizeZero;
     _timeObserver = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:_itemEndObserver name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
+//    [[NSNotificationCenter defaultCenter] removeObserver:_itemEndObserver name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
     _itemEndObserver = nil;
     _isPlaying = NO;
     _player = nil;
@@ -369,12 +369,12 @@ static NSString *const kPresentationSize         = @"presentationSize";
 //        }
 //    }];
     
-    _itemEndObserver = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-        @zf_strongify(self)
-        if (!self) return;
-        self.playState = ZFPlayerPlayStatePlayStopped;
-        if (self.playerDidToEnd) self.playerDidToEnd(self);
-    }];
+//    _itemEndObserver = [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+//        @zf_strongify(self)
+//        if (!self) return;
+//        self.playState = ZFPlayerPlayStatePlayStopped;
+//        if (self.playerDidToEnd) self.playerDidToEnd(self);
+//    }];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
@@ -465,7 +465,8 @@ static NSString *const kPresentationSize         = @"presentationSize";
         }
             break;
         case AVPEventCompletion: {
-            
+            self.playState = ZFPlayerPlayStatePlayStopped;
+            if (self.playerDidToEnd) self.playerDidToEnd(self);
         }
             
             break;
