@@ -506,10 +506,10 @@ static NSString *const kPresentationSize         = @"presentationSize";
 }
 
 - (void)onLoadingProgress:(AliPlayer*)player progress:(float)progress {
-    if (progress >= 100.f) {
-        self.loadState = ZFPlayerLoadStateStalled;
-        [self bufferingSomeSecond];
-    }
+//    if (progress >= 100.f) {
+//        self.loadState = ZFPlayerLoadStateStalled;
+//        [self bufferingSomeSecond];
+//    }
 }
 
 - (void)onVideoSizeChanged:(AliPlayer*)player width:(int)width height:(int)height rotation:(int)rotation {
