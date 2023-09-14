@@ -90,6 +90,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
 @property (nonatomic, assign) BOOL isBuffering;
 @property (nonatomic, assign) BOOL isReadyToPlay;
 @property (nonatomic, strong) AVAssetImageGenerator *imageGenerator;
+@property (nonatomic, copy) void(^seekComplete)(BOOL);
 
 @end
 
@@ -206,10 +207,11 @@ static NSString *const kPresentationSize         = @"presentationSize";
 //        int32_t timeScale = _player.currentItem.asset.duration.timescale;
 //        CMTime seekTime = CMTimeMakeWithSeconds(time, timeScale);
         //[_player seekToTime:seekTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:completionHandler];
-        [_player seekToTime:time seekMode:AVP_SEEKMODE_ACCURATE];
-        if (completionHandler) {
-            completionHandler(YES);
-        }
+        [_player seekToTime:time seekMode:AVP_SEEKMODE_INACCURATE];
+        _seekComplete = completionHandler;
+//        if (completionHandler) {
+//            completionHandler(YES);
+//        }
     } else {
         self.seekTime = time;
     }
@@ -477,6 +479,10 @@ static NSString *const kPresentationSize         = @"presentationSize";
         }
             break;
         case AVPEventSeekEnd:{
+            if (self.seekComplete) {
+                self.seekComplete(YES);
+                _seekComplete = nil;
+            }
         }
             break;
         case AVPEventLoopingStart:
