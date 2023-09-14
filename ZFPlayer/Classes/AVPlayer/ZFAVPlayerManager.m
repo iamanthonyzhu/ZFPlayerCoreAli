@@ -456,8 +456,8 @@ static NSString *const kPresentationSize         = @"presentationSize";
                 if (self.shouldAutoPlay && self.isPlaying) [self play];
             }
             self.player.muted = self.muted;
-            NSTimeInterval currentTime = self.player.currentPosition/1000.f;
-            NSTimeInterval durationTime = self.player.duration/1000.f;
+            NSTimeInterval currentTime = self.player.currentPosition;
+            NSTimeInterval durationTime = self.player.duration;
             if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, currentTime, durationTime);
         }
             break;
@@ -487,16 +487,10 @@ static NSString *const kPresentationSize         = @"presentationSize";
 }
 
 - (void)onCurrentPositionUpdate:(AliPlayer*)player position:(int64_t)position {
-    NSTimeInterval currentTime = position/1000.f;
-    NSTimeInterval durationTime = self.player.duration/1000.f;
+    NSTimeInterval currentTime = position;
+    NSTimeInterval durationTime = self.player.duration;
     if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, currentTime, durationTime);
 }
-
-//- (void)onCurrentUtcTimeUpdate:(AliPlayer *)player time:(int64_t)time {
-//    NSTimeInterval currentTime = time/1000.f;
-//    NSTimeInterval durationTime = self.player.duration/1000.f;
-//    if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, currentTime, durationTime);
-//}
 
 
 - (void)onError:(AliPlayer*)player errorModel:(AVPErrorModel *)errorModel {
