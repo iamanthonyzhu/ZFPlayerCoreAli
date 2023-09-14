@@ -507,7 +507,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
 }
 
 - (void)onVideoSizeChanged:(AliPlayer*)player width:(int)width height:(int)height rotation:(int)rotation {
-    self.presentationSize = self.playerItem.presentationSize;
+    self.presentationSize = CGSizeMake(width, height);
 }
 #pragma mark - getter
 
