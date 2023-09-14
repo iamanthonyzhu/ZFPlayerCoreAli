@@ -49,7 +49,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
 
 @interface ZFPlayerPresentView : UIView
 
-@property (nonatomic, strong) AVPlayer *player;
+//@property (nonatomic, strong) AVPlayer *player;
 /// default is AVLayerVideoGravityResizeAspect.
 @property (nonatomic, strong) AVLayerVideoGravity videoGravity;
 
@@ -64,20 +64,20 @@ static NSString *const kPresentationSize         = @"presentationSize";
 - (AVPlayerLayer *)avLayer {
     return (AVPlayerLayer *)self.layer;
 }
-
-- (void)setPlayer:(AVPlayer *)player {
-    if (player == _player) return;
-    self.avLayer.player = player;
-}
-
-- (void)setVideoGravity:(AVLayerVideoGravity)videoGravity {
-    if (videoGravity == self.videoGravity) return;
-    [self avLayer].videoGravity = videoGravity;
-}
-
-- (AVLayerVideoGravity)videoGravity {
-    return [self avLayer].videoGravity;
-}
+//
+//- (void)setPlayer:(AVPlayer *)player {
+//    if (player == _player) return;
+//    self.avLayer.player = player;
+//}
+//
+//- (void)setVideoGravity:(AVLayerVideoGravity)videoGravity {
+//    if (videoGravity == self.videoGravity) return;
+//    [self avLayer].videoGravity = videoGravity;
+//}
+//
+//- (AVLayerVideoGravity)videoGravity {
+//    return [self avLayer].videoGravity;
+//}
 
 @end
 
@@ -357,8 +357,8 @@ static NSString *const kPresentationSize         = @"presentationSize";
                               options:NSKeyValueObservingOptionNew
                               context:nil];
     
-    CMTime interval = CMTimeMakeWithSeconds(self.timeRefreshInterval > 0 ? self.timeRefreshInterval : 0.1, NSEC_PER_SEC);
-    @zf_weakify(self)
+//    CMTime interval = CMTimeMakeWithSeconds(self.timeRefreshInterval > 0 ? self.timeRefreshInterval : 0.1, NSEC_PER_SEC);
+//    @zf_weakify(self)
 //    _timeObserver = [self.player addPeriodicTimeObserverForInterval:interval queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
 //        @zf_strongify(self)
 //        if (!self) return;
@@ -456,8 +456,8 @@ static NSString *const kPresentationSize         = @"presentationSize";
                 if (self.shouldAutoPlay && self.isPlaying) [self play];
             }
             self.player.muted = self.muted;
-            NSTimeInterval currentTime = self.player.currentPosition;
-            NSTimeInterval durationTime = self.player.duration;
+            NSTimeInterval currentTime = self.player.currentPosition/1000.f;
+            NSTimeInterval durationTime = self.player.duration/1000.f;
             if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, currentTime, durationTime);
         }
             break;
@@ -487,11 +487,17 @@ static NSString *const kPresentationSize         = @"presentationSize";
 }
 
 - (void)onCurrentPositionUpdate:(AliPlayer*)player position:(int64_t)position {
-    NSTimeInterval currentTime = position;
-    NSTimeInterval durationTime = self.player.duration;
+    NSTimeInterval currentTime = position/1000.f;
+    NSTimeInterval durationTime = self.player.duration/1000.f;
     if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, currentTime, durationTime);
-
 }
+
+//- (void)onCurrentUtcTimeUpdate:(AliPlayer *)player time:(int64_t)time {
+//    NSTimeInterval currentTime = time/1000.f;
+//    NSTimeInterval durationTime = self.player.duration/1000.f;
+//    if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, currentTime, durationTime);
+//}
+
 
 - (void)onError:(AliPlayer*)player errorModel:(AVPErrorModel *)errorModel {
     self.playState = ZFPlayerPlayStatePlayFailed;
