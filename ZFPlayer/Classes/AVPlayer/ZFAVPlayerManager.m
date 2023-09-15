@@ -84,7 +84,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
 @interface ZFAVPlayerManager ()<AVPDelegate> {
     id _timeObserver;
     id _itemEndObserver;
-    ZFKVOController *_playerItemKVO;
+    //ZFKVOController *_playerItemKVO;
 }
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, assign) BOOL isBuffering;
@@ -163,16 +163,16 @@ static NSString *const kPresentationSize         = @"presentationSize";
     [self.player pause];
     self->_isPlaying = NO;
     self.playState = ZFPlayerPlayStatePaused;
-    [_playerItem cancelPendingSeeks];
+    //[_playerItem cancelPendingSeeks];
     [_asset cancelLoading];
 }
 
 - (void)stop {
-    [_playerItemKVO safelyRemoveAllObservers];
+    //[_playerItemKVO safelyRemoveAllObservers];
     self.loadState = ZFPlayerLoadStateUnknown;
     self.playState = ZFPlayerPlayStatePlayStopped;
     if (self.player.rate != 0) [self.player pause];
-    [_playerItem cancelPendingSeeks];
+    //[_playerItem cancelPendingSeeks];
     [_asset cancelLoading];
 //    [self.player removeTimeObserver:_timeObserver];
 //    [self.player replaceCurrentItemWithPlayerItem:nil];
@@ -183,7 +183,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
     _isPlaying = NO;
     _player = nil;
     _assetURL = nil;
-    _playerItem = nil;
+    //_playerItem = nil;
     _isPreparedToPlay = NO;
     self->_currentTime = 0;
     self->_totalTime = 0;
@@ -207,7 +207,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
 //        int32_t timeScale = _player.currentItem.asset.duration.timescale;
 //        CMTime seekTime = CMTimeMakeWithSeconds(time, timeScale);
         //[_player seekToTime:seekTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:completionHandler];
-        [_player seekToTime:time seekMode:AVP_SEEKMODE_INACCURATE];
+        [_player seekToTime:time * 1000.f seekMode:AVP_SEEKMODE_ACCURATE];
         _seekComplete = completionHandler;
 //        if (completionHandler) {
 //            completionHandler(YES);
@@ -218,7 +218,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
 }
 
 - (UIImage *)thumbnailImageAtCurrentTime {
-    CMTime expectedTime = self.playerItem.currentTime;
+    CMTime expectedTime = CMTimeMakeWithSeconds(self.currentTime,1000000);
     CGImageRef cgImage = NULL;
     
     self.imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
@@ -236,7 +236,8 @@ static NSString *const kPresentationSize         = @"presentationSize";
 }
 
 - (void)thumbnailImageAtCurrentTime:(void(^)(UIImage *))handler {
-    CMTime expectedTime = self.playerItem.currentTime;
+    //CMTime expectedTime = self.playerItem.currentTime;
+    CMTime expectedTime = CMTimeMakeWithSeconds(self.currentTime,1000000);
     [self.imageGenerator generateCGImagesAsynchronouslyForTimes:@[[NSValue valueWithCMTime:expectedTime]] completionHandler:^(CMTime requestedTime, CGImageRef  _Nullable image, CMTime actualTime, AVAssetImageGeneratorResult result, NSError * _Nullable error) {
         if (handler) {
             UIImage *finalImage = [UIImage imageWithCGImage:image];
@@ -249,7 +250,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
 
 /// Calculate buffer progress
 - (NSTimeInterval)availableDuration {
-    return self.player.duration;
+    return self.totalTime;
 //    NSArray *timeRangeArray = _playerItem.loadedTimeRanges;
 //    CMTime currentTime = [_player currentTime];
 //    BOOL foundRange = NO;
@@ -290,15 +291,15 @@ static NSString *const kPresentationSize         = @"presentationSize";
     _player.playerView = presentView;
 
     self.scalingMode = _scalingMode;
-    if (@available(iOS 9.0, *)) {
-        _playerItem.canUseNetworkResourcesForLiveStreamingWhilePaused = NO;
-    }
-    if (@available(iOS 10.0, *)) {
-        _playerItem.preferredForwardBufferDuration = 5;
-        /// 关闭AVPlayer默认的缓冲延迟播放策略，提高首屏播放速度
-        //_player.automaticallyWaitsToMinimizeStalling = NO;
-    }
-    [self itemObserving];
+//    if (@available(iOS 9.0, *)) {
+//        _playerItem.canUseNetworkResourcesForLiveStreamingWhilePaused = NO;
+//    }
+//    if (@available(iOS 10.0, *)) {
+//        _playerItem.preferredForwardBufferDuration = 5;
+//        /// 关闭AVPlayer默认的缓冲延迟播放策略，提高首屏播放速度
+//        //_player.automaticallyWaitsToMinimizeStalling = NO;
+//    }
+//    [self itemObserving];
 }
 
 /// Playback speed switching method
@@ -331,33 +332,33 @@ static NSString *const kPresentationSize         = @"presentationSize";
         [self play];
         // 如果执行了play还是没有播放则说明还没有缓存好，则再次缓存一段时间
         self.isBuffering = NO;
-        if (!self.playerItem.isPlaybackLikelyToKeepUp) [self bufferingSomeSecond];
+        //if (!self.playerItem.isPlaybackLikelyToKeepUp) [self bufferingSomeSecond];
     });
 }
 
 - (void)itemObserving {
-    [_playerItemKVO safelyRemoveAllObservers];
-    _playerItemKVO = [[ZFKVOController alloc] initWithTarget:_playerItem];
-    [_playerItemKVO safelyAddObserver:self
-                           forKeyPath:kStatus
-                              options:NSKeyValueObservingOptionNew
-                              context:nil];
-    [_playerItemKVO safelyAddObserver:self
-                           forKeyPath:kPlaybackBufferEmpty
-                              options:NSKeyValueObservingOptionNew
-                              context:nil];
-    [_playerItemKVO safelyAddObserver:self
-                           forKeyPath:kPlaybackLikelyToKeepUp
-                              options:NSKeyValueObservingOptionNew
-                              context:nil];
-    [_playerItemKVO safelyAddObserver:self
-                           forKeyPath:kLoadedTimeRanges
-                              options:NSKeyValueObservingOptionNew
-                              context:nil];
-    [_playerItemKVO safelyAddObserver:self
-                           forKeyPath:kPresentationSize
-                              options:NSKeyValueObservingOptionNew
-                              context:nil];
+//    [_playerItemKVO safelyRemoveAllObservers];
+//    _playerItemKVO = [[ZFKVOController alloc] initWithTarget:_playerItem];
+//    [_playerItemKVO safelyAddObserver:self
+//                           forKeyPath:kStatus
+//                              options:NSKeyValueObservingOptionNew
+//                              context:nil];
+//    [_playerItemKVO safelyAddObserver:self
+//                           forKeyPath:kPlaybackBufferEmpty
+//                              options:NSKeyValueObservingOptionNew
+//                              context:nil];
+//    [_playerItemKVO safelyAddObserver:self
+//                           forKeyPath:kPlaybackLikelyToKeepUp
+//                              options:NSKeyValueObservingOptionNew
+//                              context:nil];
+//    [_playerItemKVO safelyAddObserver:self
+//                           forKeyPath:kLoadedTimeRanges
+//                              options:NSKeyValueObservingOptionNew
+//                              context:nil];
+//    [_playerItemKVO safelyAddObserver:self
+//                           forKeyPath:kPresentationSize
+//                              options:NSKeyValueObservingOptionNew
+//                              context:nil];
     
 //    CMTime interval = CMTimeMakeWithSeconds(self.timeRefreshInterval > 0 ? self.timeRefreshInterval : 0.1, NSEC_PER_SEC);
 //    @zf_weakify(self)
@@ -458,8 +459,8 @@ static NSString *const kPresentationSize         = @"presentationSize";
                 if (self.shouldAutoPlay && self.isPlaying) [self play];
             }
             self.player.muted = self.muted;
-            NSTimeInterval currentTime = self.player.currentPosition;
-            NSTimeInterval durationTime = self.player.duration;
+            NSTimeInterval currentTime = self.currentTime;
+            NSTimeInterval durationTime = self.totalTime;
             if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, currentTime, durationTime);
         }
             break;
@@ -493,8 +494,8 @@ static NSString *const kPresentationSize         = @"presentationSize";
 }
 
 - (void)onCurrentPositionUpdate:(AliPlayer*)player position:(int64_t)position {
-    NSTimeInterval currentTime = position;
-    NSTimeInterval durationTime = self.player.duration;
+    NSTimeInterval currentTime = self.currentTime;
+    NSTimeInterval durationTime = self.totalTime;
     if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, currentTime, durationTime);
 }
 
@@ -535,7 +536,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
 }
 
 - (NSTimeInterval)totalTime {
-    NSTimeInterval sec = self.player.duration;
+    NSTimeInterval sec = self.player.duration/1000.f;
     if (isnan(sec)) {
         return 0;
     }
@@ -543,7 +544,8 @@ static NSString *const kPresentationSize         = @"presentationSize";
 }
 
 - (NSTimeInterval)currentTime {
-    NSTimeInterval sec = CMTimeGetSeconds(self.playerItem.currentTime);
+    //NSTimeInterval sec = CMTimeGetSeconds(self.playerItem.currentTime);
+    NSTimeInterval sec = self.player.currentPosition/1000.f;
     if (isnan(sec) || sec < 0) {
         return 0;
     }
