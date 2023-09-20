@@ -278,6 +278,9 @@ static NSString *const kPresentationSize         = @"presentationSize";
     _player = [[AliPlayer alloc] init];
     _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFIT;
     _player.rate = 1;
+    AVPConfig *config = [self.player getConfig];
+    config.networkTimeout = 1000;
+    [self.player setConfig:config];
     _player.delegate = self;
     [_player setUrlSource:assetSource];
 
